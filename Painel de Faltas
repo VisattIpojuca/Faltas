@@ -2,70 +2,90 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# 📥 Carregando os dados
+# Configurações da página
 st.set_page_config(page_title="Dashboard de Faltas - Vigilância em Saúde", layout="wide")
+st.title("📊 Dashboard de Faltas dos Funcionários - Vigilância em Saúde de Ipojuca")
 
-st.title("📊 Dashboard de Faltas dos Funcionários")
+# ID e nome da aba
+sheet_id = "1vf27HR8Pk-CiS_zT-1-0oskfsMlR6DPM63OX61SJzU0"
+sheet_name = "Respostas ao formulário 1"
 
-# Upload de arquivo
-uploaded_file = st.file_uploader("Envie a planilha de faltas (.xlsx ou .csv)", type=["xlsx", "csv"])
+# Converte para CSV (Google Sheets)
+url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
 
-if uploaded_file:
-    if uploaded_file.name.endswith(".xlsx"):
-        df = pd.read_excel(uploaded_file)
-    else:
-        df = pd.read_csv(uploaded_file)
+# Lê os dados
+df = pd.read_csv(url)
 
-    # Conversões
-    df["Data da Falta"] = pd.to_datetime(df["Data da Falta"], errors='coerce')
-    df["Ano"] = df["Data da Falta"].dt.year
-    df["Mês"] = df["Data da Falta"].dt.month
+# Renomeia colunas (ajustar se estiverem diferentes)
+df.columns = [col.strip() for col in df.columns]  # remove espaços
 
-    # Filtros
-    col1, col2, col3, col4 = st.columns(4)
-    nomes = col1.multiselect("Funcionário", df["Nome do Funcionário"].unique())
-    setores = col2.multiselect("Setor", df["Setor"].unique())
-    motivos = col3.multiselect("Motivo da Falta", df["Motivo"].unique())
-    ano = col4.selectbox("Ano", sorted(df["Ano"].dropna().unique()), index=0)
+# Mapeia as colunas esperadas
+col_data = {
+    "timestamp": "Data de Envio",
+    "nome": "Nome do Funcionário",
+    "setor": "Setor",
+    "data_falta": "Data da Falta",
+    "motivo": "Motivo",
+    "obs": "Observações"
+}
 
-    df_filtrado = df.copy()
+# Detecta as colunas automaticamente
+df.columns = [c.strip() for c in df.columns]
+df.rename(columns={
+    df.columns[0]: "Data de Envio",
+    df.columns[1]: "Nome do Funcionário",
+    df.columns[2]: "Setor",
+    df.columns[3]: "Data da Falta",
+    df.columns[4]: "Motivo",
+    df.columns[5]: "Observações"
+}, inplace=True)
 
-    if nomes:
-        df_filtrado = df_filtrado[df_filtrado["Nome do Funcionário"].isin(nomes)]
-    if setores:
-        df_filtrado = df_filtrado[df_filtrado["Setor"].isin(setores)]
-    if motivos:
-        df_filtrado = df_filtrado[df_filtrado["Motivo"].isin(motivos)]
-    if ano:
-        df_filtrado = df_filtrado[df_filtrado["Ano"] == ano]
+# Conversões
+df["Data da Falta"] = pd.to_datetime(df["Data da Falta"], errors='coerce')
+df["Ano"] = df["Data da Falta"].dt.year
+df["Mês"] = df["Data da Falta"].dt.month_name()
 
-    st.subheader("📅 Visão Geral")
+# Filtros interativos
+st.sidebar.header("🔍 Filtros")
+funcionarios = st.sidebar.multiselect("Funcionário", df["Nome do Funcionário"].unique())
+setores = st.sidebar.multiselect("Setor", df["Setor"].unique())
+motivos = st.sidebar.multiselect("Motivo da Falta", df["Motivo"].unique())
+ano = st.sidebar.selectbox("Ano", sorted(df["Ano"].dropna().unique()), index=0)
 
-    col5, col6, col7 = st.columns(3)
-    col5.metric("Total de Faltas", len(df_filtrado))
-    col6.metric("Funcionários únicos", df_filtrado["Nome do Funcionário"].nunique())
-    col7.metric("Setores envolvidos", df_filtrado["Setor"].nunique())
+# Aplica os filtros
+df_filtrado = df.copy()
+if funcionarios:
+    df_filtrado = df_filtrado[df_filtrado["Nome do Funcionário"].isin(funcionarios)]
+if setores:
+    df_filtrado = df_filtrado[df_filtrado["Setor"].isin(setores)]
+if motivos:
+    df_filtrado = df_filtrado[df_filtrado["Motivo"].isin(motivos)]
+if ano:
+    df_filtrado = df_filtrado[df_filtrado["Ano"] == ano]
 
-    # 📈 Gráficos
-    st.subheader("📌 Gráficos")
-    col8, col9 = st.columns(2)
+# Métricas
+st.subheader("📈 Visão Geral")
+col1, col2, col3 = st.columns(3)
+col1.metric("Total de Faltas", len(df_filtrado))
+col2.metric("Funcionários", df_filtrado["Nome do Funcionário"].nunique())
+col3.metric("Setores", df_filtrado["Setor"].nunique())
 
-    with col8:
-        fig1 = px.histogram(df_filtrado, x="Motivo", color="Setor", title="Faltas por Motivo")
-        st.plotly_chart(fig1, use_container_width=True)
+# Gráficos
+st.subheader("📊 Distribuição de Faltas")
+col4, col5 = st.columns(2)
 
-    with col9:
-        fig2 = px.histogram(df_filtrado, x="Mês", color="Setor", title="Faltas por Mês")
-        st.plotly_chart(fig2, use_container_width=True)
+with col4:
+    fig1 = px.histogram(df_filtrado, x="Motivo", color="Setor", title="Faltas por Motivo")
+    st.plotly_chart(fig1, use_container_width=True)
 
-    # 📋 Tabela
-    st.subheader("📑 Tabela de Faltas")
-    st.dataframe(df_filtrado, use_container_width=True)
+with col5:
+    fig2 = px.histogram(df_filtrado, x="Mês", color="Setor", title="Faltas por Mês")
+    st.plotly_chart(fig2, use_container_width=True)
 
-    # 💾 Download opcional
-    csv = df_filtrado.to_csv(index=False).encode("utf-8")
-    st.download_button("📥 Baixar dados filtrados", data=csv, file_name="faltas_filtradas.csv", mime="text/csv")
+# Tabela detalhada
+st.subheader("📋 Tabela Detalhada")
+st.dataframe(df_filtrado, use_container_width=True)
 
-else:
-    st.info("Por favor, envie a planilha com os dados de faltas.")
-
+# Botão de download
+csv = df_filtrado.to_csv(index=False).encode("utf-8")
+st.download_button("📥 Baixar dados filtrados", data=csv, file_name="faltas_filtradas.csv", mime="text/csv")
