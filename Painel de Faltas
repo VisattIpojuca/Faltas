@@ -1,0 +1,71 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# 📥 Carregando os dados
+st.set_page_config(page_title="Dashboard de Faltas - Vigilância em Saúde", layout="wide")
+
+st.title("📊 Dashboard de Faltas dos Funcionários")
+
+# Upload de arquivo
+uploaded_file = st.file_uploader("Envie a planilha de faltas (.xlsx ou .csv)", type=["xlsx", "csv"])
+
+if uploaded_file:
+    if uploaded_file.name.endswith(".xlsx"):
+        df = pd.read_excel(uploaded_file)
+    else:
+        df = pd.read_csv(uploaded_file)
+
+    # Conversões
+    df["Data da Falta"] = pd.to_datetime(df["Data da Falta"], errors='coerce')
+    df["Ano"] = df["Data da Falta"].dt.year
+    df["Mês"] = df["Data da Falta"].dt.month
+
+    # Filtros
+    col1, col2, col3, col4 = st.columns(4)
+    nomes = col1.multiselect("Funcionário", df["Nome do Funcionário"].unique())
+    setores = col2.multiselect("Setor", df["Setor"].unique())
+    motivos = col3.multiselect("Motivo da Falta", df["Motivo"].unique())
+    ano = col4.selectbox("Ano", sorted(df["Ano"].dropna().unique()), index=0)
+
+    df_filtrado = df.copy()
+
+    if nomes:
+        df_filtrado = df_filtrado[df_filtrado["Nome do Funcionário"].isin(nomes)]
+    if setores:
+        df_filtrado = df_filtrado[df_filtrado["Setor"].isin(setores)]
+    if motivos:
+        df_filtrado = df_filtrado[df_filtrado["Motivo"].isin(motivos)]
+    if ano:
+        df_filtrado = df_filtrado[df_filtrado["Ano"] == ano]
+
+    st.subheader("📅 Visão Geral")
+
+    col5, col6, col7 = st.columns(3)
+    col5.metric("Total de Faltas", len(df_filtrado))
+    col6.metric("Funcionários únicos", df_filtrado["Nome do Funcionário"].nunique())
+    col7.metric("Setores envolvidos", df_filtrado["Setor"].nunique())
+
+    # 📈 Gráficos
+    st.subheader("📌 Gráficos")
+    col8, col9 = st.columns(2)
+
+    with col8:
+        fig1 = px.histogram(df_filtrado, x="Motivo", color="Setor", title="Faltas por Motivo")
+        st.plotly_chart(fig1, use_container_width=True)
+
+    with col9:
+        fig2 = px.histogram(df_filtrado, x="Mês", color="Setor", title="Faltas por Mês")
+        st.plotly_chart(fig2, use_container_width=True)
+
+    # 📋 Tabela
+    st.subheader("📑 Tabela de Faltas")
+    st.dataframe(df_filtrado, use_container_width=True)
+
+    # 💾 Download opcional
+    csv = df_filtrado.to_csv(index=False).encode("utf-8")
+    st.download_button("📥 Baixar dados filtrados", data=csv, file_name="faltas_filtradas.csv", mime="text/csv")
+
+else:
+    st.info("Por favor, envie a planilha com os dados de faltas.")
+
