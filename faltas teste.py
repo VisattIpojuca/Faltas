@@ -65,7 +65,7 @@ if len(profissionais) == 1:
     dados_prof = df_filtrado[df_filtrado["Nome do Profissional"] == profissionais[0]]
     for _, row in dados_prof.iterrows():
         data_falta = str(row['Data da Falta']) if pd.notnull(row['Data da Falta']) else 'Sem Data'
-        st.markdown(f"- 🗓️ {data_falta} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
+        st.markdown(f"- {data_falta} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
 
 # Gráficos
 st.subheader("📊 Visualização de Dados")
