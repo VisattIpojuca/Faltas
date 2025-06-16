@@ -37,8 +37,8 @@ df.rename(columns={
     df.columns[6]: "Observações"
 }, inplace=True)
 
-df["Data da Falta"] = pd.to_datetime(df["Data da Falta"], errors='coerce')
-df["Ano"] = df["Data da Falta"].dt.year
+# OBS: não vamos converter "Data da Falta" para datetime
+# Exibir como texto puro (caso tenha conteúdo livre)
 
 # Filtros
 st.sidebar.header("🔍 Seleções")
@@ -64,8 +64,8 @@ if len(profissionais) == 1:
     st.subheader(f"📌 Resumo de {profissionais[0]}")
     dados_prof = df_filtrado[df_filtrado["Nome do Profissional"] == profissionais[0]]
     for _, row in dados_prof.iterrows():
-        data_formatada = row['Data da Falta'].strftime('%d/%m/%Y') if pd.notnull(row['Data da Falta']) else 'Sem Data'
-        st.markdown(f"- 🗓️ {data_formatada} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
+        data_falta = str(row['Data da Falta']) if pd.notnull(row['Data da Falta']) else 'Sem Data'
+        st.markdown(f"- 🗓️ {data_falta} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
 
 # Gráficos
 st.subheader("📊 Visualização de Dados")
