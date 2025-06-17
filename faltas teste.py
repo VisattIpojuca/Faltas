@@ -73,7 +73,7 @@ with col1:
     fig1 = px.histogram(
         df_filtrado,
         x="Tipo de Ausência",
-        color="Nome do Profissional",  # Aqui trocamos de "Unidade de Saúde" para "Nome do Profissional"
+        color="Nome do Profissional",  # Troca legenda
         title="Faltas por Tipo"
     )
     st.plotly_chart(fig1, use_container_width=True)
@@ -82,25 +82,26 @@ with col1:
 with col2:
     fig2 = px.histogram(
         df_filtrado,
-        x="Cargo/Função",  # Aqui, na tabela visual, virou "Cargo/Função", que é na verdade a Data da Falta
+        x="Cargo/Função",  # Aqui é a Data da Falta na visualização
         color="Tipo de Ausência",
         title="Faltas por Dia"
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-# ➕ Gráfico Rank de Faltas por Nome do Profissional
-st.subheader("📈 Rank de Faltas por Nome do Profissional")
+# ➕ Gráfico de Barras - Faltas por Unidade
+st.subheader("📊 Faltas por Unidade")
 rank = df_filtrado["Nome do Profissional"].value_counts().reset_index()
 rank.columns = ["Nome do Profissional", "Total de Faltas"]
 
-fig3 = px.line(
+fig3 = px.bar(
     rank,
     x="Nome do Profissional",
     y="Total de Faltas",
-    markers=True,
-    title="Rank de Faltas por Nome do Profissional"
+    title="Faltas por Unidade",
+    text_auto=True,
+    color="Total de Faltas"
 )
-fig3.update_traces(line_color=COR_PRINCIPAL)
+fig3.update_traces(marker_color=COR_PRINCIPAL)
 st.plotly_chart(fig3, use_container_width=True)
 
 # 🔥 Tabela Detalhada com nomes das colunas trocados
