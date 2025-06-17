@@ -42,7 +42,7 @@ st.sidebar.header("🔍 Seleções")
 df.sort_values("Unidade de Saúde", inplace=True)
 unidades = st.sidebar.multiselect("Nome do Profissional", options=sorted(df["Unidade de Saúde"].dropna().unique()))
 profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["Nome do Profissional"].dropna().unique()))
-cargos = st.sidebar.multiselect("Cargo/Função", options=sorted(df["Cargo/Função"].dropna().unique()))
+datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()))  # <-- alterado nome do filtro para Data
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
 # Aplicando filtros
@@ -51,8 +51,8 @@ if unidades:
     df_filtrado = df_filtrado[df_filtrado["Unidade de Saúde"].isin(unidades)]
 if profissionais:
     df_filtrado = df_filtrado[df_filtrado["Nome do Profissional"].isin(profissionais)]
-if cargos:
-    df_filtrado = df_filtrado[df_filtrado["Cargo/Função"].isin(cargos)]
+if datas:
+    df_filtrado = df_filtrado[df_filtrado["Cargo/Função"].isin(datas)]
 if tipos:
     df_filtrado = df_filtrado[df_filtrado["Tipo de Ausência"].isin(tipos)]
 
@@ -73,18 +73,19 @@ with col1:
     fig1 = px.histogram(
         df_filtrado,
         x="Tipo de Ausência",
-        color="Nome do Profissional",  # Troca legenda
+        color="Nome do Profissional",  # Legenda
         title="Faltas por Tipo"
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-# Gráfico Faltas por Dia
+# Gráfico Faltas por Dia com legenda alterada para "Datas"
 with col2:
     fig2 = px.histogram(
         df_filtrado,
-        x="Cargo/Função",  # Aqui é a Data da Falta na visualização
+        x="Cargo/Função",  # Na visualização, representa as datas
         color="Tipo de Ausência",
-        title="Faltas por Dia"
+        title="Faltas por Dia",
+        labels={"Cargo/Função": "Datas"}  # <-- legenda alterada aqui
     )
     st.plotly_chart(fig2, use_container_width=True)
 
