@@ -42,7 +42,7 @@ st.sidebar.header("🔍 Seleções")
 df.sort_values("Unidade de Saúde", inplace=True)
 unidades = st.sidebar.multiselect("Nome do Profissional", options=sorted(df["Unidade de Saúde"].dropna().unique()))
 profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["Nome do Profissional"].dropna().unique()))
-datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()))  # <-- alterado nome do filtro para Data
+datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()))
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
 # Aplicando filtros
@@ -68,13 +68,14 @@ if len(profissionais) == 1:
 st.subheader("📊 Visualização de Dados")
 col1, col2 = st.columns(2)
 
-# Gráfico Faltas por Tipo (trocando legenda)
+# Gráfico Faltas por Tipo (legenda alterada para Unidade de Saúde)
 with col1:
     fig1 = px.histogram(
         df_filtrado,
         x="Tipo de Ausência",
-        color="Nome do Profissional",  # Legenda
-        title="Faltas por Tipo"
+        color="Nome do Profissional",
+        title="Faltas por Tipo",
+        labels={"Nome do Profissional": "Unidade de Saúde"}
     )
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -82,21 +83,21 @@ with col1:
 with col2:
     fig2 = px.histogram(
         df_filtrado,
-        x="Cargo/Função",  # Na visualização, representa as datas
+        x="Cargo/Função",
         color="Tipo de Ausência",
         title="Faltas por Dia",
-        labels={"Cargo/Função": "Datas"}  # <-- legenda alterada aqui
+        labels={"Cargo/Função": "Datas"}
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-# ➕ Gráfico de Barras - Faltas por Unidade
+# ➕ Gráfico de Barras - Faltas por Unidade (legenda e eixo alterados)
 st.subheader("📊 Faltas por Unidade")
 rank = df_filtrado["Nome do Profissional"].value_counts().reset_index()
-rank.columns = ["Nome do Profissional", "Total de Faltas"]
+rank.columns = ["Unidade de Saúde", "Total de Faltas"]
 
 fig3 = px.bar(
     rank,
-    x="Nome do Profissional",
+    x="Unidade de Saúde",
     y="Total de Faltas",
     title="Faltas por Unidade",
     text_auto=True,
