@@ -37,15 +37,12 @@ df.rename(columns={
     df.columns[6]: "Observações"
 }, inplace=True)
 
-# OBS: não vamos converter "Data da Falta" para datetime
-# Exibir como texto puro (caso tenha conteúdo livre)
-
 # Filtros
 st.sidebar.header("🔍 Seleções")
 df.sort_values("Unidade de Saúde", inplace=True)
 unidades = st.sidebar.multiselect("Nome do Profissional", options=sorted(df["Unidade de Saúde"].dropna().unique()))
 profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["Nome do Profissional"].dropna().unique()))
-cargos = st.sidebar.multiselect("Data da Falta", options=sorted(df["Cargo/Função"].dropna().unique()))
+cargos = st.sidebar.multiselect("Cargo/Função", options=sorted(df["Cargo/Função"].dropna().unique()))
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
 # Aplicando filtros
@@ -65,24 +62,64 @@ if len(profissionais) == 1:
     dados_prof = df_filtrado[df_filtrado["Nome do Profissional"] == profissionais[0]]
     for _, row in dados_prof.iterrows():
         data_falta = str(row['Data da Falta']) if pd.notnull(row['Data da Falta']) else 'Sem Data'
-        st.markdown(f"- {data_falta} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
+        st.markdown(f"- 🗓️ {data_falta} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
 
 # Gráficos
 st.subheader("📊 Visualização de Dados")
 col1, col2 = st.columns(2)
+
+# Gráfico Faltas por Tipo (trocando legenda)
 with col1:
-    fig1 = px.histogram(df_filtrado, x="Tipo de Ausência", color="Unidade de Saúde", title="Faltas por Tipo")
+    fig1 = px.histogram(
+        df_filtrado,
+        x="Tipo de Ausência",
+        color="Nome do Profissional",  # Aqui trocamos de "Unidade de Saúde" para "Nome do Profissional"
+        title="Faltas por Tipo"
+    )
     st.plotly_chart(fig1, use_container_width=True)
+
+# Gráfico Faltas por Dia
 with col2:
-    fig2 = px.histogram(df_filtrado, x="Cargo/Função", color="Tipo de Ausência", title="Faltas por Cargo")
+    fig2 = px.histogram(
+        df_filtrado,
+        x="Cargo/Função",  # Aqui, na tabela visual, virou "Cargo/Função", que é na verdade a Data da Falta
+        color="Tipo de Ausência",
+        title="Faltas por Dia"
+    )
     st.plotly_chart(fig2, use_container_width=True)
 
-# Tabela e downloads
-st.subheader("📋 Tabela Detalhada")
-st.dataframe(df_filtrado, use_container_width=True)
+# ➕ Gráfico Rank de Faltas por Nome do Profissional
+st.subheader("📈 Rank de Faltas por Nome do Profissional")
+rank = df_filtrado["Nome do Profissional"].value_counts().reset_index()
+rank.columns = ["Nome do Profissional", "Total de Faltas"]
 
-# Download XLSX
+fig3 = px.line(
+    rank,
+    x="Nome do Profissional",
+    y="Total de Faltas",
+    markers=True,
+    title="Rank de Faltas por Nome do Profissional"
+)
+fig3.update_traces(line_color=COR_PRINCIPAL)
+st.plotly_chart(fig3, use_container_width=True)
+
+# 🔥 Tabela Detalhada com nomes das colunas trocados
+st.subheader("📋 Tabela Detalhada")
+df_tabela = df_filtrado.rename(columns={
+    "Nome do Profissional": "Unidade de Saúde",
+    "Unidade de Saúde": "Nome do Profissional",
+    "Data da Falta": "Cargo/Função",
+    "Cargo/Função": "Data da Falta"
+})
+st.dataframe(df_tabela, use_container_width=True)
+
+# Download XLSX da Tabela
 xlsx_data = BytesIO()
-df_filtrado.to_excel(xlsx_data, index=False, engine='openpyxl')
+df_tabela.to_excel(xlsx_data, index=False, engine='openpyxl')
 xlsx_data.seek(0)
-st.download_button("📥 Baixar Excel", data=xlsx_data, file_name="faltas_aps_ipojuca.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+st.download_button(
+    "📥 Baixar Excel",
+    data=xlsx_data,
+    file_name="faltas_aps_ipojuca.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
