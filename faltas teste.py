@@ -73,8 +73,9 @@ with col1:
     fig1 = px.histogram(
         df_filtrado,
         x="Tipo de Ausência",
-        color="Nome do Profissional",  # Legenda
+        color="Nome do Profissional",  # Na visualização, representa as Unidades
         title="Faltas por Tipo"
+        labels={"Nome do Profissional": "Unidades"}  # <-- legenda alterada aqui
     )
     st.plotly_chart(fig1, use_container_width=True)
 
