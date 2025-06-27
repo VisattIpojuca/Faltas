@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from io import BytesIO
+from datetime import date
 
 # ========== LOGIN ==========
 def login_page():
@@ -82,9 +83,15 @@ profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["N
 datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()))
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
-# Filtro por período com calendário
-data_min = df["Data da Falta Formatada"].min()
-data_max = df["Data da Falta Formatada"].max()
+# Filtro por período com calendário (seguro)
+data_validas = df["Data da Falta Formatada"].dropna()
+if not data_validas.empty:
+    data_min = data_validas.min()
+    data_max = data_validas.max()
+else:
+    data_min = date.today()
+    data_max = date.today()
+
 periodo = st.sidebar.date_input("Período", [data_min, data_max])
 
 # Aplicando filtros
