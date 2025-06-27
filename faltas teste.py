@@ -39,7 +39,18 @@ def login_page():
         unsafe_allow_html=True
     )
 
-    st.image("1.png", width=200)
+    st.markdown(
+    '''
+    <div style="text-align:center; margin-bottom: 1rem;">
+        <a href="https://www.ipojuca.pe.gov.br/" target="_blank">
+            <img src="1.png" width="400">
+        </a>
+    </div>
+    <div class="login-box">
+    ''',
+    unsafe_allow_html=True
+)
+
     st.markdown('<div class="login-title">Painel de faltas APS - Acesso Restrito</div>', unsafe_allow_html=True)
 
     if "autenticado" not in st.session_state:
