@@ -1,10 +1,10 @@
 # 📊 Painel de Faltas - APS Ipojuca
 
-Este painel foi desenvolvido para monitoramento e análise das ausências justificadas dos profissionais da Atenção Primária de Ipojuca.
+Este painel foi desenvolvido para o monitoramento e análise das ausências justificadas dos profissionais da Atenção Primária de Ipojuca.
 
 ## 🔐 Acesso Restrito
 
-Este painel possui tela de login protegida com usuário e senha padrão:
+O painel possui uma tela de login para garantir o acesso controlado às informações.
 
 - **Login:** apsipojuca  
 - **Senha:** Ipojuca@2025*
@@ -15,26 +15,17 @@ Este painel possui tela de login protegida com usuário e senha padrão:
   - Unidade de Saúde
   - Nome do Profissional
   - Tipo de Ausência
-  - Data
+  - Data (texto)
+  - Período (com calendário interativo)
 - Resumo individual por profissional
-- Visualização por gráficos:
+- Visualizações em gráficos:
   - Faltas por Tipo
   - Faltas por Dia
   - Faltas por Unidade
-- Tabela com possibilidade de download em Excel (.xlsx)
+- Tabela detalhada com exportação para Excel
 
-## 🛠️ Como executar localmente
+## ▶️ Como executar localmente
 
-1. Instale as dependências:
+1. Instale os pacotes necessários:
 ```bash
 pip install -r requirements.txt
-```
-
-2. Execute o painel:
-```bash
-streamlit run faltas.py
-```
-
----
-
-Desenvolvido com carinho pela Diretoria de Atenção Primária de Ipojuca 💙

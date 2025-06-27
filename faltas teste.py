@@ -26,7 +26,9 @@ def login_page():
         ''',
         unsafe_allow_html=True
     )
+
     st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    st.image("1.png", width=150)
     st.markdown('<div class="login-title">Painel de faltas APS - Acesso Restrito</div>', unsafe_allow_html=True)
 
     if "autenticado" not in st.session_state:
@@ -43,7 +45,6 @@ def login_page():
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Verificação
 if not st.session_state.get("autenticado"):
     login_page()
     st.stop()
@@ -51,8 +52,8 @@ if not st.session_state.get("autenticado"):
 # ========== PAINEL ==========
 COR_PRINCIPAL = "#003366"
 st.set_page_config(page_title="Painel de Faltas - APS Ipojuca", layout="wide")
-
 st.title("📊 Painel de Faltas - Atenção Primária à Saúde de Ipojuca")
+st.image("images.png", width=150)
 
 sheet_id = "1vf27HR8Pk-CiS_zT-1-0oskfsMlR6DPM63OX61SJzU0"
 sheet_name = "respostas1"
@@ -70,13 +71,23 @@ df.rename(columns={
     df.columns[6]: "Observações"
 }, inplace=True)
 
+df["Data da Falta Formatada"] = pd.to_datetime(df["Data da Falta"], errors="coerce")
+
+# Filtros
 st.sidebar.header("🔍 Seleções")
 df.sort_values("Unidade de Saúde", inplace=True)
+
 unidades = st.sidebar.multiselect("Nome do Profissional", options=sorted(df["Unidade de Saúde"].dropna().unique()))
 profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["Nome do Profissional"].dropna().unique()))
 datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()))
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
+# Filtro por período com calendário
+data_min = df["Data da Falta Formatada"].min()
+data_max = df["Data da Falta Formatada"].max()
+periodo = st.sidebar.date_input("Período", [data_min, data_max])
+
+# Aplicando filtros
 df_filtrado = df.copy()
 if unidades:
     df_filtrado = df_filtrado[df_filtrado["Unidade de Saúde"].isin(unidades)]
@@ -86,7 +97,11 @@ if datas:
     df_filtrado = df_filtrado[df_filtrado["Cargo/Função"].isin(datas)]
 if tipos:
     df_filtrado = df_filtrado[df_filtrado["Tipo de Ausência"].isin(tipos)]
+if isinstance(periodo, list) and len(periodo) == 2:
+    inicio, fim = periodo
+    df_filtrado = df_filtrado[df_filtrado["Data da Falta Formatada"].between(inicio, fim)]
 
+# Resumo individual
 if len(profissionais) == 1:
     st.subheader(f"📌 Resumo de {profissionais[0]}")
     dados_prof = df_filtrado[df_filtrado["Nome do Profissional"] == profissionais[0]]
@@ -94,6 +109,7 @@ if len(profissionais) == 1:
         data_falta = str(row['Data da Falta']) if pd.notnull(row['Data da Falta']) else 'Sem Data'
         st.markdown(f"- 🗓️ {data_falta} | 🏥 {row['Unidade de Saúde']} | 📌 *{row['Tipo de Ausência']}* — {row['Observações']}")
 
+# Gráficos
 st.subheader("📊 Visualização de Dados")
 col1, col2 = st.columns(2)
 
@@ -107,6 +123,7 @@ with col2:
                         title="Faltas por Dia", labels={"Cargo/Função": "Datas"})
     st.plotly_chart(fig2, use_container_width=True)
 
+# Rank por Unidade
 st.subheader("📊 Faltas por Unidade")
 rank = df_filtrado["Nome do Profissional"].value_counts().reset_index()
 rank.columns = ["Unidade de Saúde", "Total de Faltas"]
@@ -115,6 +132,7 @@ fig3 = px.bar(rank, x="Unidade de Saúde", y="Total de Faltas", title="Faltas po
 fig3.update_traces(marker_color=COR_PRINCIPAL)
 st.plotly_chart(fig3, use_container_width=True)
 
+# Tabela Detalhada
 st.subheader("📋 Tabela Detalhada")
 df_tabela = df_filtrado.rename(columns={
     "Nome do Profissional": "Unidade de Saúde",
@@ -124,6 +142,7 @@ df_tabela = df_filtrado.rename(columns={
 })
 st.dataframe(df_tabela, use_container_width=True)
 
+# Exportar Excel
 xlsx_data = BytesIO()
 df_tabela.to_excel(xlsx_data, index=False, engine='openpyxl')
 xlsx_data.seek(0)
