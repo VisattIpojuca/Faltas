@@ -29,7 +29,7 @@ def login_page():
         """
         <div style='text-align: center; margin-top: 5vh; margin-bottom: 2rem;'>
             <a href='https://www.ipojuca.pe.gov.br/' target='_blank'>
-                <img src='1.png' width='400'/>
+                <st.image("1.png", width=400/>
             </a>
         </div>
         """,
