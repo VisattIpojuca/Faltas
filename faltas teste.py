@@ -67,29 +67,6 @@ PALETA_CORES = ["#5cb13b", "#276db3", "#fdcd2f", "#ffffff"]
 
 st.set_page_config(page_title="Painel de Faltas - APS Ipojuca", layout="wide")
 
-st.markdown(
-    """
-    <style>
-    .block-container {
-        background-color: #ffffff;
-    }
-    h1, h2, h3, h4, h5 {
-        color: #276db3;
-    }
-    .stApp {
-        background-color: #ffffff;
-    }
-    .css-1aumxhk, .st-bb, .st-at {
-        background-color: #fdcd2f !important;
-    }
-    .stSidebar {
-        background-color: #f0f0f0;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 st.title("📊 Painel de Faltas - Atenção Primária à Saúde de Ipojuca")
 st.image("images.png", width=150)
 
