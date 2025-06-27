@@ -43,7 +43,7 @@ def login_page():
     '''
     <div style="text-align:center; margin-bottom: 1rem;">
         <a href="https://www.ipojuca.pe.gov.br/" target="_blank">
-            <img src="1.png" width="400">
+            <img src="1.png" width="200">
         </a>
     </div>
     <div class="login-box">
