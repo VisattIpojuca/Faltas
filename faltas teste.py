@@ -28,17 +28,23 @@ def login_page():
     )
     st.markdown('<div class="login-box">', unsafe_allow_html=True)
     st.markdown('<div class="login-title">Painel APS - Acesso Restrito</div>', unsafe_allow_html=True)
+
+    if "autenticado" not in st.session_state:
+        st.session_state["autenticado"] = False
+
     username = st.text_input("Login")
     password = st.text_input("Senha", type="password")
-    st.markdown('</div>', unsafe_allow_html=True)
+
     if st.button("Entrar"):
         if username == "apsipojuca" and password == "Ipojuca@2025*":
             st.session_state["autenticado"] = True
-            st.experimental_rerun()
         else:
             st.error("Credenciais inválidas. Tente novamente.")
 
-if "autenticado" not in st.session_state or not st.session_state["autenticado"]:
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Verificação
+if not st.session_state.get("autenticado"):
     login_page()
     st.stop()
 
