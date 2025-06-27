@@ -39,8 +39,7 @@ def login_page():
         unsafe_allow_html=True
     )
 
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-    st.image("1.png", width=150)
+    st.image("images.png", width=200)
     st.markdown('<div class="login-title">Painel de faltas APS - Acesso Restrito</div>', unsafe_allow_html=True)
 
     if "autenticado" not in st.session_state:
