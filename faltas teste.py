@@ -48,8 +48,7 @@ def login_page():
     </div>
     <div class="login-box">
     ''',
-    unsafe_allow_html=True
-)
+    unsafe_allow_html=True)
 
     st.markdown('<div class="login-title">Painel de faltas APS - Acesso Restrito</div>', unsafe_allow_html=True)
 
