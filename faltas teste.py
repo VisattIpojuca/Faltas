@@ -11,10 +11,10 @@ def login_page():
         <style>
         .login-box {
             max-width: 400px;
-            margin: 10vh auto;
+            margin: 5vh auto;
             padding: 2rem;
             border-radius: 10px;
-            background-color: #ffffff;
+            background-color: transparent;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border: 2px solid #276db3;
         }
@@ -39,17 +39,19 @@ def login_page():
         unsafe_allow_html=True
     )
 
+    # Exibe imagem institucional com link para site oficial
     st.markdown(
-    '''
-    <div style="text-align:center; margin-bottom: 1rem;">
-        <a href="https://www.ipojuca.pe.gov.br/" target="_blank">
-            <img src="1.png" width="200">
-        </a>
-    </div>
-    <div class="login-box">
-    ''',
-    unsafe_allow_html=True)
+        """
+        <div style='text-align: center; margin-bottom: 1rem;'>
+            <a href='https://www.ipojuca.pe.gov.br/' target='_blank'>
+                <img src='https://raw.githubusercontent.com/seuusuario/seurepo/main/images.png' width='200'/>
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
     st.markdown('<div class="login-title">Painel de faltas APS - Acesso Restrito</div>', unsafe_allow_html=True)
 
     if "autenticado" not in st.session_state:
