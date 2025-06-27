@@ -80,7 +80,12 @@ df.sort_values("Unidade de Saúde", inplace=True)
 
 unidades = st.sidebar.multiselect("Nome do Profissional", options=sorted(df["Unidade de Saúde"].dropna().unique()))
 profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["Nome do Profissional"].dropna().unique()))
-datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()), default=[date.today().strftime("%d/%m/%Y")])
+
+# Filtro de Data com pré-seleção da data atual
+datas_opcoes = sorted(df["Cargo/Função"].dropna().unique())
+hoje = date.today().strftime("%d/%m/%Y")
+datas = st.sidebar.multiselect("Data", options=datas_opcoes, default=[hoje] if hoje in datas_opcoes else None)
+
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
 # Aplicando filtros
