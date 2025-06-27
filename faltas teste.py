@@ -83,11 +83,11 @@ profissionais = st.sidebar.multiselect("Unidade de Saúde", options=sorted(df["N
 datas = st.sidebar.multiselect("Data", options=sorted(df["Cargo/Função"].dropna().unique()))
 tipos = st.sidebar.multiselect("Tipo de Ausência", options=sorted(df["Tipo de Ausência"].dropna().unique()))
 
-# Filtro por período com calendário (seguro)
+# Filtro por período com base na Data da Falta (coluna F)
 data_validas = df["Data da Falta Formatada"].dropna()
 if not data_validas.empty:
-    data_min = data_validas.min()
-    data_max = data_validas.max()
+    data_min = data_validas.min().date()
+    data_max = data_validas.max().date()
 else:
     data_min = date.today()
     data_max = date.today()
@@ -106,7 +106,7 @@ if tipos:
     df_filtrado = df_filtrado[df_filtrado["Tipo de Ausência"].isin(tipos)]
 if isinstance(periodo, list) and len(periodo) == 2:
     inicio, fim = periodo
-    df_filtrado = df_filtrado[df_filtrado["Data da Falta Formatada"].between(inicio, fim)]
+    df_filtrado = df_filtrado[df_filtrado["Data da Falta Formatada"].between(pd.to_datetime(inicio), pd.to_datetime(fim))]
 
 # Resumo individual
 if len(profissionais) == 1:
